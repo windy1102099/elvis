@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.ssmdemo.mapper.BookMapper" ><!--标识dao层-->
+
+    <!--id属性 ，resultMap标签的标识
+        type属性 ，返回值的全限定类名，或类型别名
+        autoMapping属性 ，值范围true（默认值）|false, 设置是否启动自动映射功能，自动映射功能就是自动查找与字段名小写同名的属性名，
+        并调用setter方法。而设置为false后，则需要在resultMap内明确注明映射关系才会调用对应的setter方法-->
+    <!--<resultMap type="Book" id="bookResult" autoMapping="true">-->
+        <!--<id column="id" property="id" />-->
+        <!--&lt;!&ndash;property:Book实体里面user的字段，column:外键字段 javaType:外键实体类&ndash;&gt;-->
+        <!--<association property="User" column="author_id" javaType="User">-->
+            <!--<id column="u_id" property="id" />-->
+            <!--<result column="u_name" property="username"/>-->
+            <!--<result column="u_age" property="age"/>-->
+        <!--</association>-->
+    <!--</resultMap>-->
+
+    <!--<select id="getAllBooks" resultMap="bookResult">-->
+    <!--SELECT b.*,u.name as u_name,u.id as u_id,u.age as u_age FROM book b LEFT JOIN users u on b.author_id=u.id-->
+    <!--</select>-->
+
+
+
+    <!--<resultMap type="Book" id="bookResult" autoMapping="true">-->
+        <!--<id column="id" property="id" />-->
+        <!--&lt;!&ndash;property:Book实体里面user的字段，column:外键字段 javaType:外键实体类&ndash;&gt;-->
+        <!--<association property="User" column="author_id" resultMap="userResult">-->
+        <!--</association>-->
+    <!--</resultMap>-->
+
+    <!--<resultMap type="User" id="userResult" autoMapping="true">-->
+        <!--<id column="id" property="id" />-->
+        <!--<result column="NAME" property="username"/>-->
+        <!--&lt;!&ndash;property:Book实体里面user的字段，column:外键字段 javaType:外键实体类&ndash;&gt;-->
+    <!--</resultMap>-->
+    <!---->
+
+    <!--<select id="getAllBooks" resultMap="bookResult">-->
+        <!--SELECT * FROM book b LEFT JOIN users u on b.author_id=u.id-->
+    <!--</select>-->
+
+    <!--3-->
+    <resultMap type="Book" id="bookResult" autoMapping="true">
+        <id column="id" property="id" />
+        <!--property:Book实体里面user的字段，column:外键字段 javaType:外键实体类-->
+        <association property="User" column="author_id" javaType="User"
+        select="com.example.ssmdemo.mapper.UserMapper.get">
+        </association>
+    </resultMap>
+
+    <select id="getAllBooks" resultMap="bookResult">
+    SELECT * FROM book
+    </select>
+
+
+    <!-- 定义通用的SQL语句 -->
+    <sql id="all_sql">
+        FROM book
+        <!--　trim是一个格式化标签　prefix：前缀 prefixoverride：去掉第一个and或者是or-->
+        <trim prefix="WHERE" prefixOverrides="AND |OR">
+            <if test="name != null">
+                name like #{name}
+            </if>
+            <choose>
+                <when test="authorId != null">
+                    AND author_id = #{authorId}
+                </when>
+                <otherwise>
+                    <if test="id != null">
+                        AND id = #{id}
+                    </if>
+                </otherwise>
+            </choose>
+        </trim>
+        ORDER BY id ASC
+    </sql>
+
+
+    <select id="getAllBooks1" resultMap="bookResult">
+        SELECT * <include refid="all_sql"/>
+    </select>
+
+
+    <!--插入-->
+    <insert id="save" parameterType="Book" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into book(name,author_id)
+        values(#{name},#{user.id})
+    </insert>
+
+</mapper>

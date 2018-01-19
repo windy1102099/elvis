@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.ssmdemo.mapper.UserMapper" ><!--标识dao层-->
+
+    <!--#和$的区别，#字符串，$数字-->
+    <!--<select id="selectUserByName"  resultType="User">-->
+        <!--SELECT NAME as username,id,age FROM users WHERE NAME = #{name}-->
+    <!--</select>-->
+
+    <resultMap type="User" id="userResult" autoMapping="true">
+        <result column="NAME" property="username"/>
+    </resultMap>
+
+    <insert id="save" parameterType="User" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO users(NAME,age)
+        VALUE (#{username},#{age})
+    </insert>
+
+    <select id="selectUserByName"  resultMap="userResult">
+    SELECT * FROM users WHERE NAME = #{name}
+    </select>
+
+    <select id="get" resultMap="userResult">
+        select * from users where id = #{id}
+    </select>
+
+</mapper>
